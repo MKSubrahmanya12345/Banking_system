@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .glass-card {
+    @apply bg-bank-card/80 backdrop-blur-md border border-gray-700/50 rounded-2xl shadow-xl;
+  }
+  
+  .btn-primary {
+    @apply bg-bank-blue hover:bg-bank-blue-hover text-white font-medium py-2 px-4 rounded-xl transition-all duration-200 shadow-lg shadow-bank-blue/20 flex items-center justify-center;
+  }
+  
+  .input-field {
+    @apply w-full bg-bank-dark/50 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-bank-blue focus:border-transparent transition-all;
+  }
+}
