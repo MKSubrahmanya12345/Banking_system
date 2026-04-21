@@ -7,6 +7,9 @@ export default function Accounts() {
   const [selectedAcc, setSelectedAcc] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [newAccountType, setNewAccountType] = useState('savings');
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState('');
 
   useEffect(() => {
     fetchAccounts();
@@ -25,6 +28,7 @@ export default function Accounts() {
   };
 
   const fetchStatement = async (id) => {
+    if (!id) return;
     setSelectedAcc(id);
     setLoading(true);
     try {
@@ -36,12 +40,49 @@ export default function Accounts() {
     setLoading(false);
   };
 
+  const createAccount = async (e) => {
+    e.preventDefault();
+    setCreateError('');
+    setCreating(true);
+    try {
+      const res = await axios.post('http://localhost:5000/api/accounts', { accountType: newAccountType });
+      const created = res.data;
+      await fetchAccounts();
+      if (created?.account_id) {
+        fetchStatement(created.account_id);
+      }
+    } catch (e) {
+      setCreateError(e?.response?.data?.error || 'Unable to create account');
+    }
+    setCreating(false);
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl">
       <h1 className="text-3xl font-bold mb-4">Passbook</h1>
+
+      <form onSubmit={createAccount} className="glass-card p-4 flex flex-col md:flex-row md:items-end gap-3">
+        <div>
+          <label className="text-gray-400 text-sm mb-1 block">Add New Account</label>
+          <select
+            value={newAccountType}
+            onChange={(e) => setNewAccountType(e.target.value)}
+            className="input-field min-w-44"
+          >
+            <option value="savings">Savings</option>
+            <option value="current">Current</option>
+            <option value="fd">Fixed Deposit</option>
+          </select>
+        </div>
+        <button type="submit" disabled={creating} className="btn-primary px-5 py-2.5 disabled:opacity-70">
+          {creating ? 'Creating...' : 'Create Account'}
+        </button>
+        {createError && <p className="text-red-400 text-sm">{createError}</p>}
+      </form>
       
       {/* Account Selector */}
       <div className="flex gap-4 mb-6">
+         {accounts.length === 0 && <p className="text-gray-400">No accounts yet. Create one above.</p>}
          {accounts.map(acc => (
            <button 
              key={acc.account_id}
