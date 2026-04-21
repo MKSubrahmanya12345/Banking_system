@@ -29,30 +29,79 @@ exports.getAccountStatement = async (req, res) => {
 exports.createAccount = async (req, res) => {
   const { accountType } = req.body;
   const customerId = req.user.id;
+  const allowedTypes = ['savings', 'current', 'fd'];
+
+  if (!allowedTypes.includes(accountType)) {
+    return res.status(400).json({ error: 'Invalid account type' });
+  }
+
   try {
-    // Generate a random 10 digit account number
-    const accountNumber = Math.floor(1000000000 + Math.random() * 9000000000).toString();
-    
-    const result = await db.query(
-      `INSERT INTO ACCOUNT (customer_id, account_number, account_type, balance) 
-       VALUES ($1, $2, $3, 0.00) RETURNING *`,
-      [customerId, accountNumber, accountType]
+    await db.query('BEGIN');
+
+    // Keep SERIAL sequence in sync with existing data to avoid duplicate account_id errors.
+    await db.query(
+      `SELECT setval(
+        pg_get_serial_sequence('account', 'account_id'),
+        COALESCE((SELECT MAX(account_id) FROM ACCOUNT), 1),
+        true
+      )`
     );
-    
-    // Auto-issue a debit card for savings/current
-    if (accountType !== 'fd') {
-      const cardNumber = Math.floor(1000000000000000 + Math.random() * 9000000000000000).toString();
-      const expiry = new Date();
-      expiry.setFullYear(expiry.getFullYear() + 5);
-      
-      await db.query(
-        `INSERT INTO DEBIT_CARD (account_id, card_number, expiry_date) VALUES ($1, $2, $3)`,
-        [result.rows[0].account_id, cardNumber, expiry]
-      );
+
+    let createdAccount = null;
+    for (let i = 0; i < 5; i += 1) {
+      const accountNumber = Math.floor(1000000000 + Math.random() * 9000000000).toString();
+
+      try {
+        const result = await db.query(
+          `INSERT INTO ACCOUNT (customer_id, account_number, account_type, balance)
+           VALUES ($1, $2, $3, 0.00)
+           RETURNING account_id, account_number, account_type, balance, status, opened_at`,
+          [customerId, accountNumber, accountType]
+        );
+        createdAccount = result.rows[0];
+        break;
+      } catch (insertErr) {
+        if (insertErr.code !== '23505') {
+          throw insertErr;
+        }
+      }
     }
 
-    res.status(201).json(result.rows[0]);
+    if (!createdAccount) {
+      throw new Error('Could not generate a unique account number');
+    }
+
+    // Auto-issue a debit card for savings/current.
+    if (accountType !== 'fd') {
+      const expiry = new Date();
+      expiry.setFullYear(expiry.getFullYear() + 5);
+
+      let cardCreated = false;
+      for (let i = 0; i < 5; i += 1) {
+        const cardNumber = Math.floor(1000000000000000 + Math.random() * 9000000000000000).toString();
+        try {
+          await db.query(
+            `INSERT INTO DEBIT_CARD (account_id, card_number, expiry_date) VALUES ($1, $2, $3)`,
+            [createdAccount.account_id, cardNumber, expiry]
+          );
+          cardCreated = true;
+          break;
+        } catch (cardErr) {
+          if (cardErr.code !== '23505') {
+            throw cardErr;
+          }
+        }
+      }
+
+      if (!cardCreated) {
+        throw new Error('Could not generate a unique debit card number');
+      }
+    }
+
+    await db.query('COMMIT');
+    res.status(201).json(createdAccount);
   } catch (error) {
+    await db.query('ROLLBACK');
     res.status(500).json({ error: error.message });
   }
 };

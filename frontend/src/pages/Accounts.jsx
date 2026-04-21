@@ -10,6 +10,7 @@ export default function Accounts() {
   const [newAccountType, setNewAccountType] = useState('savings');
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
+  const [createSuccess, setCreateSuccess] = useState('');
 
   useEffect(() => {
     fetchAccounts();
@@ -43,10 +44,12 @@ export default function Accounts() {
   const createAccount = async (e) => {
     e.preventDefault();
     setCreateError('');
+    setCreateSuccess('');
     setCreating(true);
     try {
       const res = await axios.post('http://localhost:5000/api/accounts', { accountType: newAccountType });
       const created = res.data;
+      setCreateSuccess(`Account created: ID ${created.account_id}, No. ${created.account_number}`);
       await fetchAccounts();
       if (created?.account_id) {
         fetchStatement(created.account_id);
@@ -77,6 +80,7 @@ export default function Accounts() {
         <button type="submit" disabled={creating} className="btn-primary px-5 py-2.5 disabled:opacity-70">
           {creating ? 'Creating...' : 'Create Account'}
         </button>
+        {createSuccess && <p className="text-green-400 text-sm">{createSuccess}</p>}
         {createError && <p className="text-red-400 text-sm">{createError}</p>}
       </form>
       
