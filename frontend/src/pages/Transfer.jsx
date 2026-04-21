@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Send, CheckCircle } from 'lucide-react';
+import { apiUrl } from '../config/api';
 
 export default function Transfer() {
   const [accounts, setAccounts] = useState([]);
@@ -14,7 +15,7 @@ export default function Transfer() {
   const [status, setStatus] = useState(null);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/accounts').then(res => {
+      axios.get(apiUrl('/api/accounts')).then(res => {
        setAccounts(res.data);
        if(res.data.length > 0) setForm(prev => ({...prev, fromAccount: res.data[0].account_number}));
     });
@@ -28,7 +29,7 @@ export default function Transfer() {
      e.preventDefault();
      setStatus({ type: 'loading', msg: 'Processing transfer...' });
      try {
-       await axios.post('http://localhost:5000/api/transactions/transfer', {
+          await axios.post(apiUrl('/api/transactions/transfer'), {
           ...form, amount: parseFloat(form.amount)
        });
        setStatus({ type: 'success', msg: 'Transfer successful! The funds have been moved.' });

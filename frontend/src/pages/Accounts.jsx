@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { RefreshCw, ArrowUpRight, ArrowDownRight, Clock } from 'lucide-react';
+import { apiUrl } from '../config/api';
 
 export default function Accounts() {
   const [accounts, setAccounts] = useState([]);
@@ -18,7 +19,7 @@ export default function Accounts() {
 
   const fetchAccounts = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/accounts');
+      const res = await axios.get(apiUrl('/api/accounts'));
       setAccounts(res.data);
       if(res.data.length > 0) {
          fetchStatement(res.data[0].account_id);
@@ -33,7 +34,7 @@ export default function Accounts() {
     setSelectedAcc(id);
     setLoading(true);
     try {
-      const res = await axios.get(`http://localhost:5000/api/accounts/${id}/statement`);
+      const res = await axios.get(apiUrl(`/api/accounts/${id}/statement`));
       setTransactions(res.data);
     } catch(e) {
       console.error(e);
@@ -47,7 +48,7 @@ export default function Accounts() {
     setCreateSuccess('');
     setCreating(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/accounts', { accountType: newAccountType });
+      const res = await axios.post(apiUrl('/api/accounts'), { accountType: newAccountType });
       const created = res.data;
       setCreateSuccess(`Account created: ID ${created.account_id}, No. ${created.account_number}`);
       await fetchAccounts();

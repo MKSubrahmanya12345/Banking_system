@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Activity, CreditCard, LayoutDashboard, LogOut, MessageSquare, Send } from 'lucide-react';
+import { apiUrl } from '../config/api';
 
 export default function Layout({ children }) {
   const { user, logout } = useAuth();
@@ -30,7 +32,7 @@ export default function Layout({ children }) {
     setMsg('');
 
     try {
-      const { data } = await window.axios.post('http://localhost:5000/api/chat', {
+      const { data } = await axios.post(apiUrl('/api/chat'), {
         message: msg,
         history: chatHistory
       });

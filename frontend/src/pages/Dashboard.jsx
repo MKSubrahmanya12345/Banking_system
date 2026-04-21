@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ArrowUpRight, ArrowDownRight, Wallet, ShieldAlert } from 'lucide-react';
+import { apiUrl } from '../config/api';
 
 export default function Dashboard() {
   const [accounts, setAccounts] = useState([]);
@@ -14,8 +15,8 @@ export default function Dashboard() {
   const fetchData = async () => {
     try {
       const [accRes, alertRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/accounts'),
-        axios.get('http://localhost:5000/api/transactions/fraud/alerts') // Assume it filters by user in backend view logic ideally
+        axios.get(apiUrl('/api/accounts')),
+        axios.get(apiUrl('/api/transactions/fraud/alerts')) // Assume it filters by user in backend view logic ideally
       ]);
       setAccounts(accRes.data);
       setAlerts(alertRes.data);
