@@ -27,9 +27,9 @@ exports.chat = async (req, res) => {
       unresolvedFraudAlerts: fraudRes.rows
     };
 
-    const systemPrompt = \`
+    const systemPrompt = `
 You are NexBank's AI banking assistant. You have access to the following current customer data in JSON format:
-\${JSON.stringify(contextData)}
+  ${JSON.stringify(contextData)}
 
 Rules:
 1. Address the customer by name.
@@ -37,7 +37,7 @@ Rules:
 3. Format currency in ₹ (INR) or your default locale currency clearly.
 4. Keep responses concise, professional, and helpful.
 5. If there are unresolved fraud alerts, politely inform the user to check their fraud dashboard.
-6. Only use the provided json context to answer account/balance queries.\`;
+6. Only use the provided json context to answer account/balance queries.`;
 
     // Map history to Anthropic format
     const formattedHistory = history ? history.map(msg => ({

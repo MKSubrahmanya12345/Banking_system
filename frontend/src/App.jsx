@@ -4,6 +4,7 @@ import { useAuth } from './context/AuthContext'
 // Pages
 import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
+import Signup from './pages/Signup'
 import Transfer from './pages/Transfer'
 import Accounts from './pages/Accounts'
 
@@ -23,6 +24,7 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
       <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/transfer" element={<ProtectedRoute><Transfer /></ProtectedRoute>} />
       <Route path="/accounts" element={<ProtectedRoute><Accounts /></ProtectedRoute>} />

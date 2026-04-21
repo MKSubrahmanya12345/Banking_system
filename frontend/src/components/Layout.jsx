@@ -89,7 +89,7 @@ export default function Layout({ children }) {
                 </div>
                 <div className="flex-1 p-4 overflow-y-auto space-y-3 flex flex-col">
                    {chatHistory.map((c, i) => (
-                     <div key={i} className={\`p-2 rounded-lg text-sm max-w-[85%] \${c.role === 'user' ? 'bg-bank-blue ml-auto' : 'bg-gray-800 mr-auto'}\`}>
+                     <div key={i} className={`p-2 rounded-lg text-sm max-w-[85%] ${c.role === 'user' ? 'bg-bank-blue ml-auto' : 'bg-gray-800 mr-auto'}`}>
                        {c.content}
                      </div>
                    ))}

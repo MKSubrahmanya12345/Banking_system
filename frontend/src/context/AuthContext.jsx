@@ -33,6 +33,11 @@ export const AuthProvider = ({ children }) => {
     return user;
   };
 
+  const register = async (payload) => {
+    const res = await axios.post('http://localhost:5000/api/auth/register', payload);
+    return res.data;
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -41,7 +46,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

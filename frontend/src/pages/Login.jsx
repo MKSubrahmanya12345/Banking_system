@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Activity } from 'lucide-react';
 
 export default function Login() {
@@ -52,6 +53,9 @@ export default function Login() {
           <button type="submit" className="btn-primary w-full py-3 mt-4 text-lg">
             Sign In to Dashboard
           </button>
+          <p className="text-center text-sm text-gray-400 mt-3">
+            New here? <Link to="/signup" className="text-bank-accent hover:underline">Create account</Link>
+          </p>
         </div>
       </form>
     </div>
